@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAN-TYO Invitation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Georgia", "Times New Roman", serif;
+      overflow: hidden;
+      position: relative;
+      background: #0a0a12;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("Digimon_Profile_Report_002_b.webp") center center / cover no-repeat;
+      opacity: 0.85;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
+    #envelope-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      z-index: 10;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      position: relative;
+    }
+
+    #envelope-stage.hidden {
+      opacity: 0;
+      transform: scale(0.85);
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .hint {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1.2rem;
+      letter-spacing: 4px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.9);
+      animation: pulse 2.2s infinite;
+      font-weight: 300;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.65; }
+      50% { opacity: 1; }
+    }
+
+    .envelope {
+      width: 360px;
+      height: 230px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 20px 45px rgba(0,0,0,0.75));
+    }
+
+    .envelope:hover {
+      transform: scale(1.06) translateY(-8px);
+    }
+
+    .envelope:active {
+      transform: scale(0.98);
+    }
+
+    .env-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(165deg, #1f1f1f 0%, #121212 50%, #0a0a0a 100%);
+      border-radius: 8px 8px 12px 12px;
+      border: 1.5px solid #3a3a3a;
+      z-index: 0;
+    }
+
+    .env-body {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 155px;
+      background: linear-gradient(165deg, #222 0%, #111 40%, #0a0a0a 100%);
+      border-radius: 0 0 12px 12px;
+      border: 1.5px solid #3a3a3a;
+      border-top: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .env-body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(255,255,255,0.012) 28px,
+          rgba(255,255,255,0.012) 29px
+        );
+      pointer-events: none;
+    }
+
+    .env-body::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 35px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .env-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 115px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #181818 100%);
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      border: 1.5px solid #444;
+      transform-origin: top center;
+      transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 3;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+    }
+
+    .env-flap::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 5%, rgba(255,215,0,0.35) 50%, transparent 95%);
+    }
+
+    .envelope.open .env-flap {
+      transform: rotateX(180deg);
+    }
+
+    .seal {
+      position: absolute;
+      top: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      z-index: 5;
+      box-shadow: 
+        0 6px 20px rgba(0,0,0,0.7),
+        0 0 0 3px rgba(255, 215, 0, 0.4),
+        inset 0 0 12px rgba(0,0,0,0.5);
+      overflow: hidden;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      background: #000;
+      border: 2px solid rgba(255, 200, 50, 0.65);
+    }
+
+    .seal img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .envelope.open .seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.35) rotate(15deg);
+    }
+
+    .env-accent {
+      position: absolute;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.45), transparent);
+      z-index: 2;
+    }
+
+    #video-stage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    #video-stage.active {
+      display: flex;
+    }
+
+    .video-wrapper {
+      width: 80%;
+      max-width: 900px;
+      aspect-ratio: 4 / 3;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,215,0,0.25);
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    /* ===== LETTER STAGE - full invitation image ===== */
+    #letter-stage {
+      display: none;
+      z-index: 30;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      animation: fadeIn 0.8s ease;
+      overflow: auto;
+    }
+
+    #letter-stage.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .letter-card {
+      max-width: 100%;
+      max-height: 92vh;
+      width: auto;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+      animation: letterPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      object-fit: contain;
+    }
+
+    @keyframes letterPop {
+      from { transform: scale(0.7) translateY(30px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .envelope {
+        width: 300px;
+        height: 195px;
+      }
+      .env-body {
+        height: 135px;
+      }
+      .env-flap {
+        height: 100px;
+      }
+      .seal {
+        width: 90px;
+        height: 90px;
+        top: 45px;
+      }
+      .video-wrapper {
+        width: 92%;
+      }
+      .letter-card {
+        max-height: 88vh;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="envelope-stage">
+    <p class="hint">點擊信封打開邀請函</p>
+    <div class="envelope" id="envelope" onclick="openEnvelope()">
+      <div class="env-back"></div>
+      <div class="env-body">
+        <div class="env-accent"></div>
+      </div>
+      <div class="env-flap"></div>
+      <div class="seal">
+        <img src="ban-tyo-color-outline%20(3).png" alt="BAN-TYO" />
+      </div>
+    </div>
+  </div>
+
+  <div id="video-stage">
+    <div class="video-wrapper">
+      <video id="player" playsinline></video>
+    </div>
+  </div>
+
+  <div id="letter-stage">
+    <img class="letter-card" src="invitation_card.jpg" alt="BANTYO Grand Opening Invitation" />
+  </div>
+
+  <script>
+    const PLAY_SECONDS = 10;
+    let countdownInterval = null;
+    let videoEnded = false;
+
+    function openEnvelope() {
+      const envelope = document.getElementById("envelope");
+      envelope.classList.add("open");
+
+      setTimeout(() => {
+        document.getElementById("envelope-stage").classList.add("hidden");
+        startVideo();
+      }, 950);
+    }
+
+    function startVideo() {
+      const videoStage = document.getElementById("video-stage");
+      videoStage.classList.add("active");
+
+      const video = document.getElementById("player");
+      video.src = "braveheart_10s.mp4";
+      video.muted = false;
+      video.playsInline = true;
+
+      video.onloadeddata = function () {
+        video.play().catch(function () {});
+        startCountdown();
+      };
+
+      video.onended = function () {
+        showLetter();
+      };
+
+      video.onerror = function () {
+        setTimeout(showLetter, 1500);
+      };
+    }
+
+    function startCountdown() {
+      if (countdownInterval) return;
+      let remaining = PLAY_SECONDS;
+
+      countdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          showLetter();
+        }
+      }, 1000);
+    }
+
+    function showLetter() {
+      if (videoEnded) return;
+      videoEnded = true;
+
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+
+      const video = document.getElementById("player");
+      try {
+        video.pause();
+        video.currentTime = 0;
+      } catch (e) {}
+
+      document.getElementById("video-stage").style.display = "none";
+      document.getElementById("letter-stage").classList.add("active");
+    }
+  </script>
+</body>
+</html>
